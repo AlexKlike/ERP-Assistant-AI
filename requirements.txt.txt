@@ -1,0 +1,6 @@
+google-generativeai
+pyTelegramBotAPI
+PyQt6
+Pillow
+fdb
+pyautogui
