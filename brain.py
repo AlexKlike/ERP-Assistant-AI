@@ -1,5 +1,6 @@
 import google.generativeai as genai
 import json, fdb, os, re
+import logging
 
 class Brain:
     def __init__(self, api_key, db_config=None):
@@ -56,21 +57,27 @@ class Brain:
         """
 
         try:
+            logging.info (f"🤖 ШІ: Надсилаю запит до Gemini ({len(images)} стор.)")
             response = self.ai_model.generate_content([prompt] + images)
             text = response.text.strip().replace('```json', '').replace('```', '')
+            logging.info("✅ ШІ: Відповідь отримана, починаю парсинг JSON")
             data = json.loads(text)
             if self.db_config and data.get('items'):
                 data['items'] = self.process_with_learning(data['items'])
             return data
         except Exception as e:
+            logging.error(f"Помилка ШІ: {e}")
             print(f"Помилка ШІ: {e}"); return {"items": [], "grand_total_on_paper": 0}
 
     def process_with_learning(self, items):
+        logging.info (f"Початок звірки з БД (Mode: READ-ONLY). Товарів: {len(items)}")
         # Функція для "голого" порівняння без пробілів
         def total_strip(t): return re.sub(r'[^a-zA-Zа-яА-Я0-9]', '', str(t)).upper()
         
         try:
+            logging.info(f"🔌 БД: Спроба підключення до {self.db_config.get('host')}...")
             conn = fdb.connect(**self.db_config)
+            logging.info("✅ БД: Підключено успішно (Mode: READ-ONLY)")
             verified_items = []
             clean_kb = {total_strip(k): v for k, v in self.kb.items()}
 
@@ -97,7 +104,11 @@ class Brain:
                 else:
                     item['db_status'] = -1
                 verified_items.append(item)
-            conn.close(); return verified_items
+            conn.close()
+            logging.info("З'єднання з БД закрито успішно.")
+            return verified_items
         except Exception as e:
+            logging.error(f"Помилка при читанні БД: {e}")
             print(f"Помилка SQL: {e}"); return items
+
 
