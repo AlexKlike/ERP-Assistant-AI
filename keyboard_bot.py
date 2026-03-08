@@ -1,8 +1,10 @@
 import pyautogui, time, winsound
 from config import SETTINGS, ANCHOR_PATH, ERP_COORDS
+import logging
 
 def type_to_erp(items):
     print(f"🚀 ЗАПУСК! У вас є {SETTINGS['start_delay']} сек!")
+    logging.info(f"СТАРТ ДРУКУ. Агреговано позицій для введення: {len(items)}")
     time.sleep(SETTINGS['start_delay'])
     
     i = 0
@@ -34,6 +36,7 @@ def type_to_erp(items):
             time.sleep(0.2)
             
         if not found:
+            logging.warning(f"ЯКІР НЕ ЗНАЙДЕНО для коду: {code}")
             winsound.Beep(1000, 800)
             print(f"⚠️ Вікно для {code} не відкрилося!")
             if input("Повторити спробу? (y/n): ").lower() == 'y': continue 
@@ -48,3 +51,6 @@ def type_to_erp(items):
         
         time.sleep(1.2); pyautogui.hotkey('ctrl', 'enter'); time.sleep(2.0)
         i += 1
+    logging.info("Цикл друку завершено.")
+
+
