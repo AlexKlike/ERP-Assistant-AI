@@ -4,3 +4,7 @@ PyQt6
 Pillow
 fdb
 pyautogui
+
+
+pyinstaller --noconsole --onefile --name "ERP_Assistant" --add-data "assets;assets" --add-data "fbclient64.dll;." --collect-all google.generativeai --collect-all telebot gui_app.py
+
